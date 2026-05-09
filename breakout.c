@@ -100,19 +100,65 @@ int main(int argc, char** argv) {
   };
 
   bool running = true;
-    // Start the game loop
+  // Start the game loop
   while (running) {
     // Handle events
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
-        // When the user clicks the "X" in the window we get an SDL_QUIT event
+        if (event.type == SDL_QUIT) {
         running = false;
-      }
+        }
     }
 
+    // Clear the screen
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderClear(renderer);
+
+    // Draw bricks
+    SDL_SetRenderDrawColor(renderer, 200, 50, 50, 255);
+
+    // Loop through bricks and draw active ones
+    for (int r = 0; r < BRICK_ROWS; r++) {
+        for (int c = 0; c < BRICK_COLS; c++) {
+            // Calculate the index in the brocks array
+            int index = r * BRICK_COLS + c;
+            // If the brick is active then it is drawn
+            if (bricks[index] == CELL_ACTIVE) {
+                SDL_Rect brick_rect = {
+                .x = BRICK_OFFSET_X + c * (BRICK_WIDTH + 5),
+                .y = BRICK_OFFSET_Y + r * (BRICK_HEIGHT + 5),
+                .w = BRICK_WIDTH,
+                .h = BRICK_HEIGHT
+                };
+
+                SDL_RenderFillRect(renderer, &brick_rect);
+            }
+        }
+    }
+
+    // Draw paddle
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    SDL_Rect paddle_rect = {
+        .x = player.pos.x,
+        .y = player.pos.y,
+        .w = PADDLE_WIDTH,
+        .h = PADDLE_HEIGHT
+    };
+
+    SDL_RenderFillRect(renderer, &paddle_rect);
+
+    // Draw ball
+    SDL_Rect ball_rect = {
+        .x = ball.pos.x,
+        .y = ball.pos.y,
+        .w = BALL_SIZE,
+        .h = BALL_SIZE
+    };
+
+    SDL_RenderFillRect(renderer, &ball_rect);
+
+    // Show everything
     SDL_RenderPresent(renderer);
 
     SDL_Delay(1000 / FRAME_RATE);
