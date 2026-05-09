@@ -67,13 +67,26 @@ int main(int argc, char** argv) {
     SDL_Quit();
     exit(EXIT_FAILURE);
   }
-
+  // Create an SDL renderer
   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
+  // Check if the renderer was created successfully
   if (renderer == NULL) {
     SDL_DestroyWindow(window);
     SDL_Quit();
     exit(EXIT_FAILURE);
+  }
+  // Initialize brick states
+  brick_state_t* bricks = malloc(sizeof(brick_state_t) * BRICK_ROWS * BRICK_COLS);
+  // Check if memory allocation was successful
+  if (bricks == NULL) {
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 1;
+  }
+  // Set all bricks to active
+  for (int i = 0; i < BRICK_ROWS * BRICK_COLS; i++) {
+    bricks[i] = CELL_ACTIVE;
   }
 
   paddle_t player = {
@@ -104,6 +117,9 @@ int main(int argc, char** argv) {
 
     SDL_Delay(1000 / FRAME_RATE);
   }
+
+  // Clean up 
+  free(bricks);
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
