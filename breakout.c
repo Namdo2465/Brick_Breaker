@@ -18,9 +18,9 @@
 
 #define BRICK_ROWS 6
 #define BRICK_COLS 10
-#define BRICK_WIDTH 70
+#define BRICK_WIDTH 75
 #define BRICK_HEIGHT 30
-#define BRICK_OFFSET_X 50
+#define BRICK_OFFSET_X 10
 #define BRICK_OFFSET_Y 50
 
 typedef enum brick_state {
@@ -125,10 +125,10 @@ int main(int argc, char** argv) {
             // If the brick is active then it is drawn
             if (bricks[index] == CELL_ACTIVE) {
                 SDL_Rect brick_rect = {
-                .x = BRICK_OFFSET_X + c * (BRICK_WIDTH + 5),
-                .y = BRICK_OFFSET_Y + r * (BRICK_HEIGHT + 5),
-                .w = BRICK_WIDTH,
-                .h = BRICK_HEIGHT
+                    .x = BRICK_OFFSET_X + c * 78,
+                    .y = BRICK_OFFSET_Y + r * 35,
+                    .w = BRICK_WIDTH,
+                    .h = BRICK_HEIGHT
                 };
 
                 SDL_RenderFillRect(renderer, &brick_rect);
