@@ -118,6 +118,7 @@ int main(int argc, char** argv) {
 
   int lives = 2;
 
+  bool game_over = false;
   bool running = true;
   // Start the game loop
   while (running) {
@@ -158,84 +159,86 @@ int main(int argc, char** argv) {
     }
 
     // Update paddle
-    if (left_pressed) {
-        player.pos.x -= PADDLE_SPEED / (float)FRAME_RATE;
-    }
-
-    if (right_pressed) {
-        player.pos.x += PADDLE_SPEED / (float)FRAME_RATE;
-    }
-
-    if (player.pos.x < 0) {
-        player.pos.x = 0;
-    }
-
-    if (player.pos.x > SCREEN_WIDTH - PADDLE_WIDTH) {
-        player.pos.x = SCREEN_WIDTH - PADDLE_WIDTH;
-    }
-
-    // Update ball
-    ball.pos.x += ball.vel.x / (float)FRAME_RATE;
-    ball.pos.y += ball.vel.y / (float)FRAME_RATE;
-
-    // Check for collisions with walls
-    if (ball.pos.x <= 0 || ball.pos.x >= SCREEN_WIDTH - BALL_SIZE) {
-        ball.vel.x *= -1;
-    }
-
-    if (ball.pos.y <= 0) {
-        ball.vel.y *= -1;
-    }
-
-    if (ball.pos.y >= SCREEN_HEIGHT) {
-        lives--;
-
-        if (lives <= 0) {
-            running = false;
-        } else {
-            ball.pos.x = SCREEN_WIDTH / 2;
-            ball.pos.y = SCREEN_HEIGHT / 2;
-
-            ball.vel.x = BALL_SPEED_X;
-            ball.vel.y = BALL_SPEED_Y;
-
-            player.pos.x = SCREEN_WIDTH / 2 - PADDLE_WIDTH / 2;
-            player.pos.y = SCREEN_HEIGHT - 50;
+    if (!game_over) {
+        if (left_pressed) {
+            player.pos.x -= PADDLE_SPEED / (float)FRAME_RATE;
         }
-    }
 
-    // Paddle collision
-    if (ball.pos.y + BALL_SIZE >= player.pos.y &&
-        ball.pos.y <= player.pos.y + PADDLE_HEIGHT &&
-        ball.pos.x + BALL_SIZE >= player.pos.x &&
-        ball.pos.x <= player.pos.x + PADDLE_WIDTH) {
+        if (right_pressed) {
+            player.pos.x += PADDLE_SPEED / (float)FRAME_RATE;
+        }
 
-        if (ball.vel.y > 0) {
+        if (player.pos.x < 0) {
+            player.pos.x = 0;
+        }
+
+        if (player.pos.x > SCREEN_WIDTH - PADDLE_WIDTH) {
+            player.pos.x = SCREEN_WIDTH - PADDLE_WIDTH;
+        }
+
+        // Update ball
+        ball.pos.x += ball.vel.x / (float)FRAME_RATE;
+        ball.pos.y += ball.vel.y / (float)FRAME_RATE;
+
+        // Check for collisions with walls
+        if (ball.pos.x <= 0 || ball.pos.x >= SCREEN_WIDTH - BALL_SIZE) {
+            ball.vel.x *= -1;
+        }
+
+        if (ball.pos.y <= 0) {
             ball.vel.y *= -1;
         }
-    }
 
-    bool hit_brick = false;
+        if (ball.pos.y >= SCREEN_HEIGHT) {
+            lives--;
 
-    for (int r = 0; r < BRICK_ROWS && !hit_brick; r++) {
-        for (int c = 0; c < BRICK_COLS && !hit_brick; c++) {
-            int index = r * BRICK_COLS + c;
+            if (lives <= 0) {
+                game_over = true;
+            } else {
+                ball.pos.x = SCREEN_WIDTH / 2;
+                ball.pos.y = SCREEN_HEIGHT / 2;
 
-            if (bricks[index] == CELL_ACTIVE) {
+                ball.vel.x = BALL_SPEED_X;
+                ball.vel.y = BALL_SPEED_Y;
 
-                float brick_x = BRICK_OFFSET_X + c * 78;
-                float brick_y = BRICK_OFFSET_Y + r * 35;
+                player.pos.x = SCREEN_WIDTH / 2 - PADDLE_WIDTH / 2;
+                player.pos.y = SCREEN_HEIGHT - 50;
+            }
+        }
 
-                if (ball.pos.x + BALL_SIZE >= brick_x &&
-                    ball.pos.x <= brick_x + BRICK_WIDTH &&
-                    ball.pos.y + BALL_SIZE >= brick_y &&
-                    ball.pos.y <= brick_y + BRICK_HEIGHT) {
+        // Paddle collision
+        if (ball.pos.y + BALL_SIZE >= player.pos.y &&
+            ball.pos.y <= player.pos.y + PADDLE_HEIGHT &&
+            ball.pos.x + BALL_SIZE >= player.pos.x &&
+            ball.pos.x <= player.pos.x + PADDLE_WIDTH) {
 
-                        bricks[index] = CELL_EMPTY;
+            if (ball.vel.y > 0) {
+                ball.vel.y *= -1;
+            }
+        }
 
-                        ball.vel.y *= -1;
+        bool hit_brick = false;
 
-                        hit_brick = true;
+        for (int r = 0; r < BRICK_ROWS && !hit_brick; r++) {
+            for (int c = 0; c < BRICK_COLS && !hit_brick; c++) {
+                int index = r * BRICK_COLS + c;
+
+                if (bricks[index] == CELL_ACTIVE) {
+
+                    float brick_x = BRICK_OFFSET_X + c * 78;
+                    float brick_y = BRICK_OFFSET_Y + r * 35;
+
+                    if (ball.pos.x + BALL_SIZE >= brick_x &&
+                        ball.pos.x <= brick_x + BRICK_WIDTH &&
+                        ball.pos.y + BALL_SIZE >= brick_y &&
+                        ball.pos.y <= brick_y + BRICK_HEIGHT) {
+
+                            bricks[index] = CELL_EMPTY;
+
+                            ball.vel.y *= -1;
+
+                            hit_brick = true;
+                    }
                 }
             }
         }
@@ -245,7 +248,7 @@ int main(int argc, char** argv) {
     SDL_RenderClear(renderer);
 
     if (bg_texture != NULL) {
-    SDL_RenderCopy(renderer, bg_texture, NULL, NULL);
+        SDL_RenderCopy(renderer, bg_texture, NULL, NULL);
     }
 
     // Draw bricks
@@ -292,12 +295,16 @@ int main(int argc, char** argv) {
 
     SDL_RenderFillRect(renderer, &ball_rect);
 
-    if (lives == 2) {
+    if (game_over) {
+        SDL_SetWindowTitle(window, "GAME OVER");
+    }
+
+    else if (lives == 2) {
         SDL_SetWindowTitle(window, "Breakout - Lives: 2");
-    } else if (lives == 1) {
+    }
+
+    else if (lives == 1) {
         SDL_SetWindowTitle(window, "Breakout - Lives: 1");
-    } else {
-        SDL_SetWindowTitle(window, "Breakout - Game Over");
     }
 
     // Show everything
