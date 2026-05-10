@@ -116,9 +116,10 @@ int main(int argc, char** argv) {
   bool left_pressed = false;
   bool right_pressed = false;
 
-  int lives = 2;
+  int lives = 3;
 
   bool game_over = false;
+  bool game_won = false;
   bool running = true;
   // Start the game loop
   while (running) {
@@ -127,13 +128,9 @@ int main(int argc, char** argv) {
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             running = false;
-        }
-
-        else if (event.key.keysym.sym == SDLK_ESCAPE) {
+        } else if (event.key.keysym.sym == SDLK_ESCAPE) {
             running = false;
-        }
-
-        else if (event.type == SDL_KEYDOWN) {
+        } else if (event.type == SDL_KEYDOWN) {
             if (event.key.keysym.sym == SDLK_LEFT ||
                 event.key.keysym.sym == SDLK_a) {
             left_pressed = true;
@@ -143,9 +140,7 @@ int main(int argc, char** argv) {
                 event.key.keysym.sym == SDLK_d) {
             right_pressed = true;
             }
-        }
-
-        else if (event.type == SDL_KEYUP) {
+        } else if (event.type == SDL_KEYUP) {
             if (event.key.keysym.sym == SDLK_LEFT ||
                 event.key.keysym.sym == SDLK_a) {
             left_pressed = false;
@@ -159,7 +154,7 @@ int main(int argc, char** argv) {
     }
 
     // Update paddle
-    if (!game_over) {
+    if (!game_over && !game_won) {
         if (left_pressed) {
             player.pos.x -= PADDLE_SPEED / (float)FRAME_RATE;
         }
@@ -242,6 +237,18 @@ int main(int argc, char** argv) {
                 }
             }
         }
+
+        int remaining_bricks = 0;
+
+        for (int i = 0; i < BRICK_ROWS * BRICK_COLS; i++) {
+            if (bricks[i] == CELL_ACTIVE) {
+                remaining_bricks++;
+            }
+        }
+
+        if (remaining_bricks == 0) {
+            game_won = true;
+        }
     }
 
     // Clear the screen
@@ -295,15 +302,15 @@ int main(int argc, char** argv) {
 
     SDL_RenderFillRect(renderer, &ball_rect);
 
-    if (game_over) {
-        SDL_SetWindowTitle(window, "GAME OVER");
-    }
-
-    else if (lives == 2) {
+    if (game_won) {
+        SDL_SetWindowTitle(window, "Breakout - YOU WIN!");
+    } else if (game_over) {
+        SDL_SetWindowTitle(window, "Breakout - GAME OVER");
+    } else if (lives == 3) {
+        SDL_SetWindowTitle(window, "Breakout - Lives: 3");
+    } else if (lives == 2) {
         SDL_SetWindowTitle(window, "Breakout - Lives: 2");
-    }
-
-    else if (lives == 1) {
+    } else if (lives == 1) {
         SDL_SetWindowTitle(window, "Breakout - Lives: 1");
     }
 
