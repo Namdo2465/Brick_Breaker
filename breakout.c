@@ -3,7 +3,6 @@
 #include <stdbool.h>
 
 #include <SDL.h>
-#include <math.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -180,7 +179,10 @@ int main(int argc, char** argv) {
         ball.pos.y <= player.pos.y + PADDLE_HEIGHT &&
         ball.pos.x + BALL_SIZE >= player.pos.x &&
         ball.pos.x <= player.pos.x + PADDLE_WIDTH) {
-    ball.vel.y = -fabs(ball.vel.y);
+
+        if (ball.vel.y > 0) {
+            ball.vel.y *= -1;
+        }
     }
 
     bool hit_brick = false;
