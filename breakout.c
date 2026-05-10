@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include <SDL.h>
+#include <SDL_image.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -74,6 +75,19 @@ int main(int argc, char** argv) {
     SDL_DestroyWindow(window);
     SDL_Quit();
     exit(EXIT_FAILURE);
+  }
+
+  IMG_Init(IMG_INIT_PNG);
+
+  SDL_Surface* bg_surface = IMG_Load("background.png");
+
+  SDL_Texture* bg_texture = NULL;
+
+  if (bg_surface != NULL) {
+    bg_texture = SDL_CreateTextureFromSurface(renderer, bg_surface);
+    SDL_FreeSurface(bg_surface);
+  } else {
+    printf("Could not load background image\n");
   }
   // Initialize brick states
   brick_state_t* bricks = malloc(sizeof(brick_state_t) * BRICK_ROWS * BRICK_COLS);
@@ -212,11 +226,14 @@ int main(int argc, char** argv) {
     }
 
     // Clear the screen
-    SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
     SDL_RenderClear(renderer);
 
+    if (bg_texture != NULL) {
+    SDL_RenderCopy(renderer, bg_texture, NULL, NULL);
+    }
+
     // Draw bricks
-    SDL_SetRenderDrawColor(renderer, 200, 50, 50, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
     // Loop through bricks and draw active ones
     for (int r = 0; r < BRICK_ROWS; r++) {
@@ -267,6 +284,12 @@ int main(int argc, char** argv) {
 
   // Clean up 
   free(bricks);
+
+  if (bg_texture != NULL) {
+    SDL_DestroyTexture(bg_texture);
+  }
+
+  IMG_Quit();
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
