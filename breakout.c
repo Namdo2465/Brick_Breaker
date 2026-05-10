@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include <SDL.h>
+#include <math.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -99,6 +100,9 @@ int main(int argc, char** argv) {
     .vel = { .x = BALL_SPEED_X, .y = BALL_SPEED_Y }
   };
 
+  bool left_pressed = false;
+  bool right_pressed = false;
+
   bool running = true;
   // Start the game loop
   while (running) {
@@ -106,9 +110,71 @@ int main(int argc, char** argv) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
-        running = false;
+            running = false;
+        }
+
+        else if (event.type == SDL_KEYDOWN) {
+            if (event.key.keysym.sym == SDLK_LEFT ||
+                event.key.keysym.sym == SDLK_a) {
+            left_pressed = true;
+            }
+
+            if (event.key.keysym.sym == SDLK_RIGHT ||
+                event.key.keysym.sym == SDLK_d) {
+            right_pressed = true;
+            }
+        }
+
+        else if (event.type == SDL_KEYUP) {
+            if (event.key.keysym.sym == SDLK_LEFT ||
+                event.key.keysym.sym == SDLK_a) {
+            left_pressed = false;
+            }
+
+            if (event.key.keysym.sym == SDLK_RIGHT ||
+                event.key.keysym.sym == SDLK_d) {
+            right_pressed = false;
+            }
         }
     }
+
+    // Update paddle
+    if (left_pressed) {
+        player.pos.x -= PADDLE_SPEED / (float)FRAME_RATE;
+    }
+
+    if (right_pressed) {
+        player.pos.x += PADDLE_SPEED / (float)FRAME_RATE;
+    }
+
+    if (player.pos.x < 0) {
+        player.pos.x = 0;
+    }
+
+    if (player.pos.x > SCREEN_WIDTH - PADDLE_WIDTH) {
+        player.pos.x = SCREEN_WIDTH - PADDLE_WIDTH;
+    }
+
+    // Update ball
+    ball.pos.x += ball.vel.x / (float)FRAME_RATE;
+    ball.pos.y += ball.vel.y / (float)FRAME_RATE;
+    
+    // Check for collisions with walls
+    if (ball.pos.x <= 0 || ball.pos.x >= SCREEN_WIDTH - BALL_SIZE) {
+        ball.vel.x *= -1;
+    }
+
+    if (ball.pos.y <= 0) {
+        ball.vel.y *= -1;
+    }
+
+    if (ball.pos.y >= SCREEN_HEIGHT) {
+        ball.pos.x = SCREEN_WIDTH / 2;
+        ball.pos.y = SCREEN_HEIGHT / 2;
+        ball.vel.x = BALL_SPEED_X;
+        ball.vel.y = BALL_SPEED_Y;
+    }
+
 
     // Clear the screen
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
