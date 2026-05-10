@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
     // Update ball
     ball.pos.x += ball.vel.x / (float)FRAME_RATE;
     ball.pos.y += ball.vel.y / (float)FRAME_RATE;
-    
+
     // Check for collisions with walls
     if (ball.pos.x <= 0 || ball.pos.x >= SCREEN_WIDTH - BALL_SIZE) {
         ball.vel.x *= -1;
@@ -175,6 +175,39 @@ int main(int argc, char** argv) {
         ball.vel.y = BALL_SPEED_Y;
     }
 
+    // Paddle collision
+    if (ball.pos.y + BALL_SIZE >= player.pos.y &&
+        ball.pos.y <= player.pos.y + PADDLE_HEIGHT &&
+        ball.pos.x + BALL_SIZE >= player.pos.x &&
+        ball.pos.x <= player.pos.x + PADDLE_WIDTH) {
+    ball.vel.y = -fabs(ball.vel.y);
+    }
+
+    bool hit_brick = false;
+
+    for (int r = 0; r < BRICK_ROWS && !hit_brick; r++) {
+        for (int c = 0; c < BRICK_COLS && !hit_brick; c++) {
+            int index = r * BRICK_COLS + c;
+
+            if (bricks[index] == CELL_ACTIVE) {
+
+                float brick_x = BRICK_OFFSET_X + c * 78;
+                float brick_y = BRICK_OFFSET_Y + r * 35;
+
+                if (ball.pos.x + BALL_SIZE >= brick_x &&
+                    ball.pos.x <= brick_x + BRICK_WIDTH &&
+                    ball.pos.y + BALL_SIZE >= brick_y &&
+                    ball.pos.y <= brick_y + BRICK_HEIGHT) {
+
+                        bricks[index] = CELL_EMPTY;
+
+                        ball.vel.y *= -1;
+
+                        hit_brick = true;
+                }
+            }
+        }
+    }
 
     // Clear the screen
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
