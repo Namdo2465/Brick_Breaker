@@ -116,6 +116,8 @@ int main(int argc, char** argv) {
   bool left_pressed = false;
   bool right_pressed = false;
 
+  int lives = 2;
+
   bool running = true;
   // Start the game loop
   while (running) {
@@ -123,6 +125,10 @@ int main(int argc, char** argv) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
+            running = false;
+        }
+
+        else if (event.key.keysym.sym == SDLK_ESCAPE) {
             running = false;
         }
 
@@ -182,10 +188,20 @@ int main(int argc, char** argv) {
     }
 
     if (ball.pos.y >= SCREEN_HEIGHT) {
-        ball.pos.x = SCREEN_WIDTH / 2;
-        ball.pos.y = SCREEN_HEIGHT / 2;
-        ball.vel.x = BALL_SPEED_X;
-        ball.vel.y = BALL_SPEED_Y;
+        lives--;
+
+        if (lives <= 0) {
+            running = false;
+        } else {
+            ball.pos.x = SCREEN_WIDTH / 2;
+            ball.pos.y = SCREEN_HEIGHT / 2;
+
+            ball.vel.x = BALL_SPEED_X;
+            ball.vel.y = BALL_SPEED_Y;
+
+            player.pos.x = SCREEN_WIDTH / 2 - PADDLE_WIDTH / 2;
+            player.pos.y = SCREEN_HEIGHT - 50;
+        }
     }
 
     // Paddle collision
@@ -275,6 +291,14 @@ int main(int argc, char** argv) {
     };
 
     SDL_RenderFillRect(renderer, &ball_rect);
+
+    if (lives == 2) {
+        SDL_SetWindowTitle(window, "Breakout - Lives: 2");
+    } else if (lives == 1) {
+        SDL_SetWindowTitle(window, "Breakout - Lives: 1");
+    } else {
+        SDL_SetWindowTitle(window, "Breakout - Game Over");
+    }
 
     // Show everything
     SDL_RenderPresent(renderer);
