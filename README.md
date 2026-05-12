@@ -44,7 +44,7 @@ The project includes a Makefile for easy building:
 make
 ```
 
-This will compile `breakout.c` into an executable named `breakout` with the following flags:
+This will compile `breakout.c` and `game.c` into an executable named `breakout` with the following flags:
 
 - `-g`: Enable debugging symbols
 - `-Wall`: Show all warnings
